@@ -123,6 +123,10 @@ public class DriveTrain extends ChickenSubsystem {
     right.set(ControlMode.Velocity, velocity);
   }
 
+  public void zeroEncoders() {
+    left.setSelectedSensorPosition(0);
+    right.setSelectedSensorPosition(0);
+  }
   public MotionProfilingProperties createLeftProfileProperties(Trajectory trajectory) {
     MotionProfilingProperties properties = new MotionProfilingProperties(this::getLeftVelocity, this::setLeftVelocity, this::getLeftPosition, trajectory);
     properties.setEncoderTicksPerUnit(Tuning.drivetrainEncoderTPU);
