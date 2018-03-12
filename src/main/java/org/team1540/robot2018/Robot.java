@@ -25,10 +25,12 @@ import org.team1540.robot2018.commands.TankDrive;
 import org.team1540.robot2018.commands.auto.AutonomousProfiling;
 import org.team1540.robot2018.commands.auto.AutonomousProfiling.TrajectorySegment;
 import org.team1540.robot2018.commands.auto.DriveTimed;
+import org.team1540.robot2018.commands.elevator.JoystickElevator;
 import org.team1540.robot2018.commands.elevator.MoveElevatorSafe;
 import org.team1540.robot2018.commands.groups.GroundPosition;
 import org.team1540.robot2018.commands.intake.Eject;
 import org.team1540.robot2018.commands.wrist.CalibrateWrist;
+import org.team1540.robot2018.commands.wrist.JoystickWrist;
 import org.team1540.robot2018.commands.wrist.MoveWrist;
 import org.team1540.robot2018.subsystems.Arms;
 import org.team1540.robot2018.subsystems.ClimberWinch;
@@ -46,9 +48,14 @@ public class Robot extends IterativeRobot {
   public static final ClimberWinch winch = new ClimberWinch();
 
   private Command emergencyDriveCommand = new TankDrive();
+  private Command dumbElevator = new JoystickElevator();
+  private Command dumbWrist = new JoystickWrist();
 
   private SendableChooser<String> autoPosition;
   private SendableChooser<Boolean> driveMode;
+
+  private SendableChooser<Boolean> elevatorMoveMode;
+  private SendableChooser<Boolean> wristMoveMode;
 
   private Command autoCommand;
 
@@ -57,6 +64,16 @@ public class Robot extends IterativeRobot {
     // disable unused things
     LiveWindow.disableAllTelemetry();
     PowerManager.getInstance().interrupt();
+
+
+    elevatorMoveMode = new SendableChooser<>();
+    elevatorMoveMode.addDefault("PID Elevator", true);
+    elevatorMoveMode.addObject("Manual Override", false);
+
+    wristMoveMode = new SendableChooser<>();
+    wristMoveMode.addDefault("PID Wrist", true);
+    wristMoveMode.addObject("Manual Override", false);
+
 
     // TODO: Move auto chooser into command
     AdjustableManager.getInstance().add(new Tuning());
@@ -265,6 +282,19 @@ public class Robot extends IterativeRobot {
       emergencyDriveCommand.start();
     } else {
       emergencyDriveCommand.cancel();
+    }
+
+    if (elevatorMoveMode.getSelected()) {
+      dumbElevator.start();
+    } else {
+      dumbElevator.cancel();
+    }
+
+    if (wristMoveMode.getSelected()) {
+      //:(){ :|:& };:
+      dumbWrist.start();
+    } else {
+      dumbWrist.cancel();
     }
   }
 }
