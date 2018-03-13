@@ -8,6 +8,9 @@ cache:
   directories:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
+script:
+  - ./gradlew check
+  - ./gradlew generateProfiles # check if profiles are valid
 notifications:
   slack:
     secure: Dn+ATFDvIJ2gFK5/YnNfFFXEhuUIH8wpN9nfnkvAISR094V39IGIj5iLB4onx5tzLuxUpVEOIaMoEa+gSjnC54OazYkEJJNrX0Pjke7dMSah3oFsax39hfONIa/atxUlc6wUcxmtza9TwRwHrQa8685heyyLx1KuQhf8+S2tWfNUg+2CtM/P7ziAxbr8CxOQi31wLPlit7d39OQF6cPWmnZ0PyzlfP8pnoD2GNl5647C1mObXjYWFXmimJhdeDNlu2kdHREuL430fMD4c+Cl+VM6Q+XYzbC95vdv+ZdEZS3v8/qVPcfPpHwyrLG4X+Tg7AVdDQrY0N3HGtCm1dklmJgFfnTMgo2vR5cPYNlH7/giY+acdHHp2iE8jzg7eO+uuTNvFBvl3PFIXPfS+y3vXqQSlwdUNFlANQEuPqxptDZkqYPwh65DtwHYYMXEUQsyU+5iJP8uShZxsxPVYXFlxbobWsVF27ll7/1k7jz8uCmvNRlEAXxYsudJva5CA/LSY9+wP082s27rP6qWVueXHFn4Qn7aXuWZoPGvC0fk6zOK1Zhn19XS8LUnXVi9YPPFFXsptk69uUyvdoWFE8Kmm0jQcg1LU9LjJjGmfSWslVadXu4AljYZEpJrQZrGVFJ9JjFboqc8nAQmKhLCF82JDqv5tcvelCaa3yY+7E4q+JQ=
