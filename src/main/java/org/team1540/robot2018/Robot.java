@@ -91,7 +91,8 @@ public class Robot extends IterativeRobot {
     SmartDashboard.putData(zeroElevator);
 
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture(Tuning.camID);
-    camera.setResolution(320, 240);
+    camera.setResolution(128, 73);
+    camera.setFPS(30);
 
     // initialize profiles
     // unlike other static fields, initialized here because there's a high likelihood of it throwing
