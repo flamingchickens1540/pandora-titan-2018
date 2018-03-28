@@ -15,7 +15,7 @@ public class Tuning {
 
   // TODO: Better method of switching tuning values globally between robots
   @Tunable("-[General] Is Pandora")
-  public static boolean isPandora = true;
+  public static boolean isPandora = false;
 
   // CAMERA
   //@Tunable("-[Camera] Camera ID")
@@ -244,11 +244,10 @@ public class Tuning {
   @Tunable("[MotionP] Profile Acceleration P")
   public static double profileAccelP = 0;
 
-  @Tunable("[MotionP] Profile Position P")
-  public static double profilePositionP = 0.5;
-
-  @Tunable("[MotionP] Profile Velocity P")
-  public static double profileVelocityP = 0.5;
+  @Tunable("[MotionP] Profile P")
+  public static double profileP = 0.5;
+  @Tunable("[MotionP] Profile D")
+  public static double profileD;
 
   @Tunable("[MotionP] Profile Loop Frequency")
   public static double profileLoopFrequency = 0.01;
