@@ -230,10 +230,10 @@ public class Tuning {
   public static double profileHeadingP = 0;
 
   @Tunable("[MotionP] Profile Acceleration P")
-  public static double profileAccelF = 0.0025;
+  public static double profileAccelF = 0.00022812925;
 
-  @Tunable("[MotionP] Profile Velocity P")
-  public static double profileVelocityF = 0.006;
+  // equal to inverse slope of voltage vs. vel line divided by saturation voltage
+  public static double profileVelocityF = 0.0007593706666666667;
 
   @Tunable("[MotionP] Profile Loop Frequency")
   public static double profileLoopFrequency = 0.02;
