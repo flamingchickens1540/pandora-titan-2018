@@ -235,6 +235,9 @@ public class Tuning {
   @Tunable("[MotionP] Profile Loop Frequency")
   public static double profileLoopFrequency = 0.02;
 
+  // equal to x-intercept of voltage vs. vel line divided by saturation voltage
+  public static double profileVelocityIntercept = 0.041598333333333334;
+
   // AUTO
   public static double autoElevatorRaiseWait = 1;
 
