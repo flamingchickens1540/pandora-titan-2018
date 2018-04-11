@@ -105,6 +105,11 @@ public class DriveTrain extends Subsystem {
     }
   }
 
+  public void setEnableVoltageCompensation(boolean enableVoltageCompensation) {
+    driveLeftMotorA.enableVoltageCompensation(enableVoltageCompensation);
+    driveRightMotorA.enableVoltageCompensation(enableVoltageCompensation);
+  }
+
   public void reset() {
     driveLeftMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
     driveRightMotorA.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
@@ -140,6 +145,9 @@ public class DriveTrain extends Subsystem {
       talon.configPeakOutputReverse(-1);
       talon.enableCurrentLimit(false);
     }
+
+    driveLeftMotorA.configVoltageCompSaturation(Tuning.drivetrainSaturationVoltage);
+    driveRightMotorA.configVoltageCompSaturation(Tuning.drivetrainSaturationVoltage);
   }
 
   public double getLeftPosition() {

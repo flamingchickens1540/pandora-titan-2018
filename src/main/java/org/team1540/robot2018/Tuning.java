@@ -223,6 +223,9 @@ public class Tuning {
   //@Tunable("[Drivetrain] EncoderTPU")
   public static double drivetrainEncoderTPU = 53.1271477663;
 
+  //@Tunable("[Drivetrain] Saturation Voltage")
+  public static double drivetrainSaturationVoltage = 12.0;
+
   @Tunable("[MotionP] Profile Heading P")
   public static double profileHeadingP = 0;
 
