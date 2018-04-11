@@ -31,10 +31,13 @@ dependencies {
 
 def TEAM = 1540
 
+//TODO: An actually nice way of working with different robots that can be done with run configurations
 //def ROBOT_CLASS = "org.team1540.robot2018.WristTuningRobot"
 //def ROBOT_CLASS = "org.team1540.robot2018.ElevatorTuningRobot"
 //def ROBOT_CLASS = "org.team1540.robot2018.SpinnyTestRobot"
 //def ROBOT_CLASS = "org.team1540.robot2018.RobotMotorTest"
+//def ROBOT_CLASS = "org.team1540.robot2018.AccelerationCharacterizationRobot"
+//def ROBOT_CLASS = "org.team1540.robot2018.VelocityCharacterizationRobot"
 def ROBOT_CLASS = "org.team1540.robot2018.Robot"
 
 task generateProfiles(type:Exec) {
