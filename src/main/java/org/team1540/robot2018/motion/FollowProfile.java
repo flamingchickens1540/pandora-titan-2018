@@ -56,9 +56,13 @@ public class FollowProfile extends Command {
     // heading is negated for the left side only so that negative heading errors (i.e. too far right)
     // result in the left side slowing but the right side speeding up
     Robot.drivetrain.setLeft(ControlMode.Position, Tuning.drivetrainEncoderTPU
-        * leftSegment.position, getBump(leftSegment.acceleration, leftSegment.velocity, headingError));
+        * leftSegment.position, getBump(
+        (leftSegment.acceleration * Tuning.drivetrainEncoderTPU) / 10,
+        (leftSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, headingError));
     Robot.drivetrain.setRight(ControlMode.Position, Tuning.drivetrainEncoderTPU
-        * rightSegment.position, getBump(rightSegment.acceleration, rightSegment.velocity, -headingError));
+        * rightSegment.position, getBump(
+        (rightSegment.acceleration * Tuning.drivetrainEncoderTPU) / 10,
+        (rightSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, -headingError));
   }
 
   @Override
@@ -119,7 +123,8 @@ public class FollowProfile extends Command {
   private static double getBump(double accel, double velocity, double headingError) {
     return Tuning.profileHeadingP * headingError +
         Tuning.profileAccelF * accel +
-        Tuning.profileVelocityF * velocity;
+        Tuning.profileVelocityF * velocity +
+        Math.copySign(Tuning.profileVelocityIntercept, velocity);
   }
 
   @Override
@@ -132,6 +137,7 @@ public class FollowProfile extends Command {
     finished = false;
     Robot.drivetrain.zeroEncoders();
     Robot.drivetrain.configTalonsForPosition();
+    Robot.drivetrain.setEnableVoltageCompensation(true);
   }
 
   @Override
@@ -141,5 +147,6 @@ public class FollowProfile extends Command {
     Robot.drivetrain.configTalonsForVelocity();
     Robot.drivetrain.setLeftVelocity(0);
     Robot.drivetrain.setRightVelocity(0);
+    Robot.drivetrain.setEnableVoltageCompensation(false);
   }
 }
