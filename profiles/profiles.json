@@ -212,7 +212,6 @@
         "angle": 1.570796327
       }
     ],
-    "maxVel": 40.0,
     "flip": true
   },
   "right_hook": {
@@ -233,7 +232,6 @@
         "angle": -1.570796327
       }
     ],
-    "maxVel": 40.0,
     "flip": true
   },
   "left_scale": {
@@ -254,7 +252,6 @@
         "angle": -1
       }
     ],
-    "maxVel": 40.0,
     "flip": true
   },
   "left_scale_back_to_switch": {
@@ -350,7 +347,6 @@
         "angle": 1
       }
     ],
-    "maxVel": 40.0,
     "flip": true
   }
 }
