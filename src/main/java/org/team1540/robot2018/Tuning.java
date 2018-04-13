@@ -227,7 +227,7 @@ public class Tuning {
   public static double drivetrainSaturationVoltage = 12.0;
 
   @Tunable("[MotionP] Profile Heading P")
-  public static double profileHeadingP = 0;
+  public static double profileHeadingP = 1;
 
   // equal to inverse slope of voltage vs. accel line divided by saturation voltage
   @Tunable("[MotionP] Profile Acceleration P")
@@ -235,6 +235,9 @@ public class Tuning {
 
   // equal to inverse slope of voltage vs. vel line divided by saturation voltage
   public static double profileVelocityF = 0.0007593706666666667;
+
+  @Tunable("[MotionP] Profile Heading I")
+  public static double profileHeadingI = 0.1;
 
   @Tunable("[MotionP] Profile Loop Frequency")
   public static double profileLoopFrequency = 0.02;

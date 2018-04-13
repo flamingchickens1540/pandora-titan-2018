@@ -22,6 +22,8 @@ public class FollowProfile extends Command {
   private Trajectory right;
   private boolean finished;
 
+  private double gyroIAccum;
+
   public FollowProfile(String profileName) {
     DriveProfile profile = Robot.profiles.getProfile(profileName);
     this.left = profile.getLeft();
@@ -52,17 +54,17 @@ public class FollowProfile extends Command {
 
     double headingError = abs(regularError) < abs(differentError) ? regularError : differentError;
 
-
+    gyroIAccum += headingError;
     // heading is negated for the left side only so that negative heading errors (i.e. too far right)
     // result in the left side slowing but the right side speeding up
     Robot.drivetrain.setLeft(ControlMode.Position, Tuning.drivetrainEncoderTPU
         * leftSegment.position, getBump(
         (leftSegment.acceleration * Tuning.drivetrainEncoderTPU) / 10,
-        (leftSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, headingError));
+        (leftSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, headingError, gyroIAccum));
     Robot.drivetrain.setRight(ControlMode.Position, Tuning.drivetrainEncoderTPU
         * rightSegment.position, getBump(
         (rightSegment.acceleration * Tuning.drivetrainEncoderTPU) / 10,
-        (rightSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, -headingError));
+        (rightSegment.velocity * Tuning.drivetrainEncoderTPU) / 10, -headingError, -gyroIAccum));
   }
 
   @Override
@@ -120,11 +122,12 @@ public class FollowProfile extends Command {
     return (x - lowX) * (highY - lowY) / (highX - lowX) + lowY;
   }
 
-  private static double getBump(double accel, double velocity, double headingError) {
+  private static double getBump(double accel, double velocity, double headingError, double headingIAccum) {
     return Tuning.profileHeadingP * headingError +
         Tuning.profileAccelF * accel +
         Tuning.profileVelocityF * velocity +
-        Math.copySign(Tuning.profileVelocityIntercept, velocity);
+        Math.copySign(Tuning.profileVelocityIntercept, velocity) +
+        Tuning.profileHeadingI * headingIAccum;
   }
 
   @Override
@@ -135,6 +138,7 @@ public class FollowProfile extends Command {
     loop = new Notifier(this::run);
     loop.startPeriodic(Tuning.profileLoopFrequency);
     finished = false;
+    gyroIAccum = 0;
     Robot.drivetrain.zeroEncoders();
     Robot.drivetrain.configTalonsForPosition();
     Robot.drivetrain.setEnableVoltageCompensation(true);
