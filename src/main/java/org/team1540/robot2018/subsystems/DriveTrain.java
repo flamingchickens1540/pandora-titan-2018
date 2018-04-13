@@ -146,6 +146,8 @@ public class DriveTrain extends Subsystem {
       talon.enableCurrentLimit(false);
     }
 
+    setEnableVoltageCompensation(false);
+
     driveLeftMotorA.configVoltageCompSaturation(Tuning.drivetrainSaturationVoltage);
     driveRightMotorA.configVoltageCompSaturation(Tuning.drivetrainSaturationVoltage);
   }
