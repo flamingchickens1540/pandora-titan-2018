@@ -24,7 +24,7 @@ dependencies {
     compile wpilib()
     compile ctre()
     compile navx()
-    compile pathfinder()
+//    compile pathfinder()
     compile openrio.powerup.matchData()
     compile "org.team1540:rooster:master-SNAPSHOT"
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'

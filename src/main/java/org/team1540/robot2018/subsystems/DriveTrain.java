@@ -13,11 +13,11 @@ import org.team1540.robot2018.Tuning;
 
 public class DriveTrain extends Subsystem {
 
-  private ChickenTalon driveLeftMotorA = new ChickenTalon(RobotMap.DRIVE_LEFT_A);
+  public ChickenTalon driveLeftMotorA = new ChickenTalon(RobotMap.DRIVE_LEFT_A);
   private ChickenTalon driveLeftMotorB = new ChickenTalon(RobotMap.DRIVE_LEFT_B);
   private ChickenTalon driveLeftMotorC = new ChickenTalon(RobotMap.DRIVE_LEFT_C);
   private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveLeftMotorC};
-  private ChickenTalon driveRightMotorA = new ChickenTalon(RobotMap.DRIVE_RIGHT_A);
+  public ChickenTalon driveRightMotorA = new ChickenTalon(RobotMap.DRIVE_RIGHT_A);
   private ChickenTalon driveRightMotorB = new ChickenTalon(RobotMap.DRIVE_RIGHT_B);
   private ChickenTalon driveRightMotorC = new ChickenTalon(RobotMap.DRIVE_RIGHT_C);
   private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB, driveRightMotorC};
@@ -165,5 +165,12 @@ public class DriveTrain extends Subsystem {
   public void zeroEncoders() {
     driveLeftMotorA.setSelectedSensorPosition(0);
     driveRightMotorA.setSelectedSensorPosition(0);
+  }
+
+  public void disableBrake() {
+    for (ChickenTalon talon : driveMotorAll) {
+      talon.setBrake(false);
+    }
+
   }
 }
