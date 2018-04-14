@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Trajectory.Segment;
 import org.team1540.robot2018.CSVProfileManager.DriveProfile;
@@ -23,6 +24,7 @@ public class FollowProfile extends Command {
   private boolean finished;
 
   private double gyroIAccum;
+  private double value_offset;
 
   public FollowProfile(String profileName) {
     DriveProfile profile = Robot.profiles.getProfile(profileName);
@@ -40,6 +42,7 @@ public class FollowProfile extends Command {
   }
 
   private void run() {
+    SmartDashboard.putNumber("Gyro Angle", applyOffset(Robot.navx.getAngle()));
     //TODO: perform linear interpolation between trajectory points?
     Segment leftSegment = getCurrentSegment(left, timer.get());
     Segment rightSegment = getCurrentSegment(right, timer.get());
@@ -134,6 +137,7 @@ public class FollowProfile extends Command {
   protected void initialize() {
     timer.reset();
     Robot.navx.zeroYaw();
+    value_offset = left.get(0).heading - Robot.navx.getYaw();
     timer.start();
     loop = new Notifier(this::run);
     loop.startPeriodic(Tuning.profileLoopFrequency);
@@ -142,6 +146,17 @@ public class FollowProfile extends Command {
     Robot.drivetrain.zeroEncoders();
     Robot.drivetrain.configTalonsForPosition();
     Robot.drivetrain.setEnableVoltageCompensation(true);
+  }
+
+  public double applyOffset(double value) {
+    float offseted_value = (float) (value - value_offset);
+    if (offseted_value < -180) {
+      offseted_value += 360;
+    }
+    if (offseted_value > 180) {
+      offseted_value -= 360;
+    }
+    return offseted_value;
   }
 
   @Override
