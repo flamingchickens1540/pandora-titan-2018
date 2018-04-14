@@ -57,8 +57,7 @@ deploy {
 //            debug = true
         }
         // TODO: Only generate and deploy profiles when deploying robots classes that use the profiles
-        // TODO: Cache profiles after deployment and only generate them again if the profiles.json has been modified
-        // TODO: Generate profile CSV files in a separate folder from the profiles.json and trajectory.properties file
+        // TODO: Cache individual profiles after deployment and only generate them again if the profiles.json has been modified
         fileCollectionArtifact('motionProfiles') {
             dependsOn("generateProfiles")
             targets << 'roborio'
