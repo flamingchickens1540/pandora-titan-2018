@@ -42,13 +42,16 @@ public class FollowProfile extends Command {
   }
 
   private void run() {
-    SmartDashboard.putNumber("Gyro Angle", applyOffset(Robot.navx.getAngle()));
     //TODO: perform linear interpolation between trajectory points?
     Segment leftSegment = getCurrentSegment(left, timer.get());
     Segment rightSegment = getCurrentSegment(right, timer.get());
 
+    double yaw = applyOffset(Robot.navx.getYaw(), value_offset);
+    SmartDashboard.putNumber("Gyro Angle With Offset", yaw);
+    SmartDashboard.putNumber("Gyro Angle Without Offset", Robot.navx.getYaw());
+    SmartDashboard.putNumber("Gyro Value Offset", value_offset);
     double robotHeading = 2 * PI - Math.toRadians(
-        Robot.navx.getYaw() < 0 ? 360 + Robot.navx.getYaw() : Robot.navx.getYaw());
+        yaw < 0 ? 360 + yaw : yaw);
     double desiredHeading = leftSegment.heading;
 
     double regularError = robotHeading - desiredHeading;
@@ -136,8 +139,7 @@ public class FollowProfile extends Command {
   @Override
   protected void initialize() {
     timer.reset();
-    Robot.navx.zeroYaw();
-    value_offset = left.get(0).heading - Robot.navx.getYaw();
+    value_offset = Robot.navx.getYaw() - left.get(0).heading;
     timer.start();
     loop = new Notifier(this::run);
     loop.startPeriodic(Tuning.profileLoopFrequency);
@@ -148,8 +150,8 @@ public class FollowProfile extends Command {
     Robot.drivetrain.setEnableVoltageCompensation(true);
   }
 
-  public double applyOffset(double value) {
-    float offseted_value = (float) (value - value_offset);
+  public static double applyOffset(double value, double offset) {
+    double offseted_value = (value - offset);
     if (offseted_value < -180) {
       offseted_value += 360;
     }
