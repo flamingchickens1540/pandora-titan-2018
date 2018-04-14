@@ -14,44 +14,41 @@ public class RecordProfile extends Thread {
 
   private Map<ChickenTalon, Storage> motors= new HashMap<>();
   private Timer timer = new Timer();
-  public boolean running = true;
+  private boolean running = true;
+  public long dt = 10;
 
   public RecordProfile(ChickenTalon... motors) {
     for (ChickenTalon motor : motors) {
       this.motors.put(motor, new Storage());
     }
-  }
-
-  public void reset() {
     timer.reset();
-    timer.start();
-    for (Storage storage : motors.values()) {
-      storage.lastTime = timer.get();
-    }
-    super.start();
-  }
-
-  @Override
-  public void start() {
-    reset();
   }
 
   @Override
   public void run() {
-    while (true) {
-      if (running) {
-        for (Entry<ChickenTalon, Storage> entry : motors.entrySet()) {
-          entry.getValue().segments.add(new Segment(
-              timer.get() - entry.getValue().lastTime,
-              -1,
-              -1,
-              entry.getKey().getSelectedSensorPosition(),
-              entry.getKey().getSelectedSensorVelocity(),
-              -1,
-              -1,
-              Robot.navx.getYaw()
-          ));
-        }
+    timer.start();
+    for (Storage storage : motors.values()) {
+      storage.lastTime = timer.get();
+    }
+    while (running) {
+      for (Entry<ChickenTalon, Storage> entry : motors.entrySet()) {
+        double time = timer.get();
+        entry.getValue().segments.add(new Segment(
+            time - entry.getValue().lastTime,
+            0,
+            0,
+            entry.getKey().getSelectedSensorPosition(),
+            entry.getKey().getSelectedSensorVelocity(),
+            0,
+            0,
+            Robot.navx.getYaw()
+        ));
+        entry.getValue().lastTime = time;
+      }
+      try {
+        Thread.sleep(dt);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -73,6 +70,11 @@ public class RecordProfile extends Thread {
 
   public Map<ChickenTalon, Storage> getMotors() {
     return motors;
+  }
+
+  public void stopRunning() throws InterruptedException {
+    this.running = false;
+    Thread.sleep(1000);
   }
 
 }

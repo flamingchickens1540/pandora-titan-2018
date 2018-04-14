@@ -15,41 +15,40 @@ import org.team1540.robot2018.subsystems.DriveTrain;
 public class RobotRecording extends IterativeRobot {
 
   private final DriveTrain drivetrain = new DriveTrain();
-  private final RecordProfile drivetrainRecording = new RecordProfile(drivetrain.driveLeftMotorA,
+  private RecordProfile drivetrainRecording = new RecordProfile(drivetrain.driveLeftMotorA,
       drivetrain.driveRightMotorA);
-  public static String path = "/home/lvuser/profiles/";
+  public static String path = "/home/lvuser/generated-profiles/";
 
   public RobotRecording() {
     LiveWindow.disableAllTelemetry();
-    drivetrainRecording.start();
   }
 
   @Override
   public void teleopInit() {
-    drivetrainRecording.reset();
-    drivetrainRecording.running = true;
     new SimpleLoopCommand("Anit-PID", () -> {}, drivetrain);
     drivetrain.disableBrake();
+    drivetrainRecording = new RecordProfile(drivetrain.driveLeftMotorA,
+        drivetrain.driveRightMotorA);
+    drivetrainRecording.start();
   }
 
   @Override
   public void disabledInit() {
-    drivetrainRecording.running = false;
     try {
-      Thread.sleep(1000);
+      drivetrainRecording.stopRunning();
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     String folderPath = path + System.currentTimeMillis() + "/";
     for (Entry<ChickenTalon, Storage> entry : drivetrainRecording.getMotors().entrySet()) {
-      if (entry.getValue().segments.size() > 0) {
+      if (entry.getValue().segments.size() > 1) {
         Trajectory thisTrajectory = new Trajectory(entry.getValue().segments.toArray(new
             Segment[entry.getValue().segments.size()]));
         // RecordProfile.timeDialateTrajectory(thisTrajectory, timeDialation);
-        Pathfinder.writeToCSV(new File( folderPath + entry.getKey().getDeviceID() + ".csv"),
-            thisTrajectory);
+        File file = new File( folderPath + entry.getKey().getDeviceID() + ".csv");
+        file.getParentFile().mkdirs();
+        Pathfinder.writeToCSV(file, thisTrajectory);
       }
     }
   }
-
 }
