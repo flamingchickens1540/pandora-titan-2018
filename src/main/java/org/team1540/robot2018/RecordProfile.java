@@ -38,18 +38,20 @@ public class RecordProfile extends Thread {
 
   @Override
   public void run() {
-    while (running) {
-      for (Entry<ChickenTalon, Storage> entry : motors.entrySet()) {
-        entry.getValue().segments.add(new Segment(
-            timer.get() - entry.getValue().lastTime,
-            -1,
-            -1,
-            entry.getKey().getSelectedSensorPosition(),
-            entry.getKey().getSelectedSensorVelocity(),
-            -1,
-            -1,
-            Robot.navx.getYaw()
-        ));
+    while (true) {
+      if (running) {
+        for (Entry<ChickenTalon, Storage> entry : motors.entrySet()) {
+          entry.getValue().segments.add(new Segment(
+              timer.get() - entry.getValue().lastTime,
+              -1,
+              -1,
+              entry.getKey().getSelectedSensorPosition(),
+              entry.getKey().getSelectedSensorVelocity(),
+              -1,
+              -1,
+              Robot.navx.getYaw()
+          ));
+        }
       }
     }
   }

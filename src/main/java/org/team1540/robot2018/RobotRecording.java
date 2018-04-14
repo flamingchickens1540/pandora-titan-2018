@@ -40,14 +40,14 @@ public class RobotRecording extends IterativeRobot {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    drivetrainRecording.interrupt();
+    String folderPath = path + System.currentTimeMillis() + "/";
     for (Entry<ChickenTalon, Storage> entry : drivetrainRecording.getMotors().entrySet()) {
       if (entry.getValue().segments.size() > 0) {
         Trajectory thisTrajectory = new Trajectory(entry.getValue().segments.toArray(new
             Segment[entry.getValue().segments.size()]));
         // RecordProfile.timeDialateTrajectory(thisTrajectory, timeDialation);
-        Pathfinder.writeToCSV(new File(path + System.currentTimeMillis() + "/" + entry.getKey()
-            .getDeviceID() + ".csv"), thisTrajectory);
+        Pathfinder.writeToCSV(new File( folderPath + entry.getKey().getDeviceID() + ".csv"),
+            thisTrajectory);
       }
     }
   }
