@@ -19,13 +19,11 @@ import org.team1540.base.wrappers.ChickenTalon;
 public class AccelerationCharacterizationRobot extends IterativeRobot {
   private ChickenTalon driveLeftMotorA = new ChickenTalon(RobotMap.DRIVE_LEFT_A);
   private ChickenTalon driveLeftMotorB = new ChickenTalon(RobotMap.DRIVE_LEFT_B);
-  private ChickenTalon driveLeftMotorC = new ChickenTalon(RobotMap.DRIVE_LEFT_C);
-  private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveLeftMotorC};
+  private ChickenTalon[] driveLeftMotors = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB};
   private ChickenTalon driveRightMotorA = new ChickenTalon(RobotMap.DRIVE_RIGHT_A);
   private ChickenTalon driveRightMotorB = new ChickenTalon(RobotMap.DRIVE_RIGHT_B);
-  private ChickenTalon driveRightMotorC = new ChickenTalon(RobotMap.DRIVE_RIGHT_C);
-  private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB, driveRightMotorC};
-  private ChickenTalon[] driveMotorAll = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveLeftMotorC, driveRightMotorA, driveRightMotorB, driveRightMotorC};
+  private ChickenTalon[] driveRightMotors = new ChickenTalon[]{driveRightMotorA, driveRightMotorB};
+  private ChickenTalon[] driveMotorAll = new ChickenTalon[]{driveLeftMotorA, driveLeftMotorB, driveRightMotorA, driveRightMotorB};
   private ChickenTalon[] driveMotorMasters = new ChickenTalon[]{driveLeftMotorA, driveRightMotorA};
 
   private PrintWriter csvWriter = null;
@@ -166,10 +164,8 @@ public class AccelerationCharacterizationRobot extends IterativeRobot {
     }
 
     driveLeftMotorB.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
-    driveLeftMotorC.set(ControlMode.Follower, driveLeftMotorA.getDeviceID());
 
     driveRightMotorB.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
-    driveRightMotorC.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
 
     for (ChickenTalon talon : driveMotorAll) {
       talon.setBrake(true);
