@@ -1,9 +1,13 @@
 package org.team1540.robot2018;
 
 import edu.wpi.first.wpilibj.Timer;
+import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Trajectory.Segment;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,8 +22,6 @@ public class RecordProfile extends Thread {
   private Timer timer = new Timer();
   private boolean running = true;
   public long dt = 10;
-  public int degreesToFit = 4;
-  public int pointsToUse = 2;
 
   public RecordProfile(ChickenTalon... motors) {
     for (ChickenTalon motor : motors) {
@@ -62,7 +64,7 @@ public class RecordProfile extends Thread {
     public double lastTime = 0;
   }
 
-  public void addAcceleration(List<Segment> segments) {
+  public static void addAcceleration(List<Segment> segments, int pointsToUse) {
     List<Double> times = new ArrayList<>(2 * pointsToUse + 1);
     List<Double> velocities = new ArrayList<>(2 * pointsToUse + 1);
 
@@ -112,8 +114,14 @@ public class RecordProfile extends Thread {
     this.running = false;
     Thread.sleep(1000);
     for (Storage storage : motors.values()) {
-      addAcceleration(storage.segments);
+      addAcceleration(storage.segments, 4);
     }
+  }
+
+  public static void main(String args[]) {
+    Trajectory trajectory = Pathfinder.readFromCSV(new File("profiles/go_straight_left.csv"));
+    RecordProfile.addAcceleration(Arrays.asList(trajectory.segments), 4);
+    Pathfinder.writeToCSV(new File("test.csv"), trajectory);
   }
 
 }
