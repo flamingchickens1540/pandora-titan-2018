@@ -27,6 +27,7 @@ dependencies {
     compile pathfinder()
     compile openrio.powerup.matchData()
     compile "org.team1540:rooster:master-SNAPSHOT"
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 }
 
 def TEAM = 1540
@@ -35,7 +36,7 @@ def TEAM = 1540
 //def ROBOT_CLASS = "org.team1540.robot2018.ElevatorTuningRobot"
 //def ROBOT_CLASS = "org.team1540.robot2018.SpinnyTestRobot"
 //def ROBOT_CLASS = "org.team1540.robot2018.RobotMotorTest"
-def ROBOT_CLASS = "org.team1540.robot2018.Robot"
+def ROBOT_CLASS = "org.team1540.robot2018.RobotRecording"
 
 task generateProfiles(type:Exec) {
     workingDir 'profiles'
@@ -51,7 +52,7 @@ deploy {
     artifacts {
         artifact('frcJava', FRCJavaArtifact) {
             targets << "roborio"
-//            debug = true
+            debug = true
         }
         // TODO: Only generate and deploy profiles when deploying robots classes that use the profiles
         // TODO: Cache profiles after deployment and only generate them again if the profiles.json has been modified
