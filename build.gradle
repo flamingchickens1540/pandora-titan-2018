@@ -62,7 +62,7 @@ deploy {
         fileCollectionArtifact('motionProfiles') {
             dependsOn("generateProfiles")
             targets << 'roborio'
-            files = fileTree(dir: 'profiles', include: "**/*.csv")
+            files = fileTree(dir: 'profiles/generated', include: "**/*.csv")
             directory = "/home/lvuser/profiles"
         }
     }

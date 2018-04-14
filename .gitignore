@@ -57,4 +57,5 @@ crashlytics-build.properties
 fabric.properties
 
 # generated motion profiles
-profiles/*.csv
+profiles/generated/*.csv
+profiles/profileSettingsHashes.txt
