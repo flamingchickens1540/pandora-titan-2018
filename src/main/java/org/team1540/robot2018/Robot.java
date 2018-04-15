@@ -2,11 +2,9 @@ package org.team1540.robot2018;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -15,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.File;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
@@ -25,8 +24,9 @@ import org.team1540.base.power.PowerManager;
 import org.team1540.base.util.SimpleCommand;
 import org.team1540.robot2018.commands.TankDrive;
 import org.team1540.robot2018.commands.auto.DriveTimed;
-import org.team1540.robot2018.commands.auto.sequences.ProfileDoubleScaleAuto;
+import org.team1540.robot2018.commands.auto.sequences.ProfileMultiSwitchAuto;
 import org.team1540.robot2018.commands.auto.sequences.ProfileScaleAuto;
+import org.team1540.robot2018.commands.auto.sequences.ProfileSwitchScaleAuto;
 import org.team1540.robot2018.commands.auto.sequences.SimpleProfileAuto;
 import org.team1540.robot2018.commands.auto.sequences.SingleCubeSwitchAuto;
 import org.team1540.robot2018.commands.auto.sequences.SwitchDoubleCube;
@@ -56,7 +56,8 @@ public class Robot extends IterativeRobot {
 
   private Command autoCommand;
 
-  private static final BooleanSupplier SCALE_OWNED_LEFT = () -> (MatchData.getOwnedSide(GameFeature.SCALE) == OwnedSide.LEFT);
+  private static final BooleanSupplier SCALE_OWNED_LEFT = () -> (
+      MatchData.getOwnedSide(GameFeature.SCALE) == OwnedSide.LEFT);
   private static final BooleanSupplier SCALE_OWNED_RIGHT = () -> (MatchData.getOwnedSide
       (GameFeature.SCALE) == OwnedSide.RIGHT);
   private static final BooleanSupplier SWITCH_OWNED_LEFT = () -> (MatchData.getOwnedSide
@@ -80,12 +81,6 @@ public class Robot extends IterativeRobot {
 
     // TODO: Move auto chooser into command
     AdjustableManager.getInstance().add(new Tuning());
-    autoPosition = new SendableChooser<>();
-    for (AutoMode autoMode : AutoMode.values()) {
-      autoPosition.addObject(autoMode.name, autoMode);
-    }
-
-    SmartDashboard.putData("Auto mode", autoPosition);
 
     driveMode = new SendableChooser<>();
     driveMode.addDefault("PID Drive", false);
@@ -105,13 +100,18 @@ public class Robot extends IterativeRobot {
     zeroDrivetrain.setRunWhenDisabled(true);
     SmartDashboard.putData(zeroDrivetrain);
 
-    UsbCamera overheadCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.OVERHEAD_CAM_ID);
-    overheadCam.setResolution(128, 73);
-    overheadCam.setFPS(30);
+    Command zeroNavX = new SimpleCommand("[Gyro] Zero Gyro", navx::zeroYaw);
+    zeroNavX.setRunWhenDisabled(true);
+    SmartDashboard.putData(zeroNavX);
 
-    UsbCamera turretCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.TURRET_CAM_ID);
-    turretCam.setResolution(128, 73);
-    overheadCam.setFPS(30);
+
+    // UsbCamera overheadCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.OVERHEAD_CAM_ID);
+    // overheadCam.setResolution(128, 73);
+    // overheadCam.setFPS(30);
+    //
+    // UsbCamera turretCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.TURRET_CAM_ID);
+    // turretCam.setResolution(128, 73);
+    // overheadCam.setFPS(30);
 
 
     Command refreshProfiles = new SimpleCommand("[MotionP] Refresh Motion Profiles",
@@ -124,8 +124,15 @@ public class Robot extends IterativeRobot {
     // an exception and exceptions thrown during static initialization are not fun.
     profiles = new CSVProfileManager(new File("/home/lvuser/profiles"));
 
-    SmartDashboard.putData(drivetrain);
-    SmartDashboard.putData(PowerManager.getInstance());
+    autoPosition = new SendableChooser<>();
+    for (AutoMode autoMode : AutoMode.values()) {
+      if (autoMode.isDefault) {
+        autoPosition.addDefault(autoMode.name, autoMode);
+      } else {
+        autoPosition.addObject(autoMode.name, autoMode);
+      }
+    }
+    SmartDashboard.putData("Auto mode", autoPosition);
   }
 
   @Override
@@ -156,7 +163,7 @@ public class Robot extends IterativeRobot {
     if (root.condition.getAsBoolean()) {
       if (root.getProfile().isPresent()) {
         root.getMessage().ifPresent(Message::displayMessage);
-        return Optional.of(root.getProfile().get().autoCommand);
+        return Optional.of(root.getProfile().get().autoCommand.get());
       } else {
         if (root.getChildren().isPresent()) {
           for (DecisionNode node : root.getChildren().get()) {
@@ -225,83 +232,98 @@ public class Robot extends IterativeRobot {
    */
   private enum AutoMode {
 
-    LEFT_DOUBLE_SCALE_THEN_SWITCH(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_DOUBLE_SCALE_THEN_SWITCH),
-        new DecisionNode(SCALE_OWNED_RIGHT, new DecisionNode[]{
-            new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
-            new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
-            new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage
-                (SWITCH_NO_DATA_MESSAGE)
-        }),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    LEFT_SCALE_THEN_SWITCH(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE),
-        new DecisionNode(SCALE_OWNED_RIGHT, new DecisionNode[]{
-            new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
-            new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
-            new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)
-        }),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    LEFT_SCALE_NO_SWTICH(new DecisionNode(new DecisionNode[]{
+    //     new DecisionNode(SCALE_OWNED_RIGHT,
+    //     new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    //         new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)),
+    //         new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
+    //         new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
+    // LEFT_DOUBLE_SCALE_THEN_SWITCH(new DecisionNode(new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_DOUBLE_SCALE_THEN_SWITCH),
+    LEFT_SCALE_NO_SWTICH(new DecisionNode(
         new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE),
         new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    LEFT_DOUBLE_SCALE_NO_SWITCH(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE_NO_SWITCH),
-        new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    LEFT_HOOK_SWITCH_THEN_DOUBLE_SCALE(new DecisionNode(new DecisionNode[]{
+        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    LEFT_SCALE_THEN_SWITCH(new DecisionNode(
+        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE),
+        new DecisionNode(SCALE_OWNED_RIGHT,
+            new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
+            new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
+            new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)),
+        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    // LEFT_DOUBLE_SCALE_NO_SWITCH(new DecisionNode(new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE_NO_SWITCH),
+    //     new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
+    //     new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    // LEFT_HOOK_SWITCH_THEN_DOUBLE_SCALE(new DecisionNode(new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
+    //     new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE_STRAIGHT),
+    //     new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE),
+    //     new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    LEFT_SWITCH_THEN_SCALE(new DecisionNode(
         new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
-        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE_STRAIGHT),
-        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    LEFT_HOOK_SWITCH_THEN_SCALE(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
-        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE_STRAIGHT),
+        new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.LEFT_SCALE),
         new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
         new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    MIDDLE(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.MIDDLE_TO_LEFT_SWITCH),
-        new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.MIDDLE_TO_RIGHT_SWITCH),
+        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE))),
+    LEFT_SWITCH_NO_SCALE(new DecisionNode(
+        new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.LEFT_HOOK),
+        new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.GO_STRAIGHT),
         new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)
-    })),
-    CENTER_DOUBLE_CUBE(new DecisionNode(new DecisionNode[]{
+    )),
+    MIDDLE(new DecisionNode(
+        new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.MIDDLE_LEFT_SWITCH_1CUBE),
+        new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.MIDDLE_RIGHT_SWITCH_1CUBE),
+        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE))),
+    MIDDLE_2_CUBE(new DecisionNode(
         new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.SWITCH_DOUBLE_CUBE_LEFT),
         new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.SWITCH_DOUBLE_CUBE_RIGHT),
+        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE))),
+    MIDDLE_MULTI_CUBE(new DecisionNode(
+        new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.SWITCH_DOUBLE_CUBE_LEFT),
+        new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.SWITCH_DOUBLE_CUBE_RIGHT),
+        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE))),
+    MIDDLE_SWITCH_SCALE(new DecisionNode(
+        new DecisionNode(SWITCH_OWNED_LEFT, new DecisionNode(
+            new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.MIDDLE_LEFT_SWITCH_SCALE),
+            new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.MIDDLE_LEFT_SWITCH_MULTI),
+            new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.MIDDLE_LEFT_SWITCH_MULTI).setMessage(SCALE_NO_DATA_MESSAGE)
+        )),
+        new DecisionNode(SWITCH_OWNED_RIGHT, new DecisionNode(
+            new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.MIDDLE_RIGHT_SWITCH_SCALE),
+            new DecisionNode(SCALE_OWNED_LEFT, AutonomousRoutine.MIDDLE_RIGHT_SWITCH_MULTI),
+            new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.MIDDLE_RIGHT_SWITCH_MULTI).setMessage(SCALE_NO_DATA_MESSAGE)
+        )),
         new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)
-    })),
-    RIGHT_HOOK_SWITCH(new DecisionNode(new DecisionNode[]{
+    )),
+    RIGHT_HOOK_SWITCH(new DecisionNode(
         new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.RIGHT_HOOK),
         new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.GO_STRAIGHT),
-        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)
-    })),
-    RIGHT_SCALE_THEN_SWITCH(new DecisionNode(new DecisionNode[]{
-        new DecisionNode(SCALE_OWNED_RIGHT, AutonomousRoutine.RIGHT_SCALE),
-        new DecisionNode(SCALE_OWNED_LEFT, new DecisionNode[]{
-            new DecisionNode(SWITCH_OWNED_RIGHT, AutonomousRoutine.RIGHT_HOOK),
-            new DecisionNode(SWITCH_OWNED_LEFT, AutonomousRoutine.GO_STRAIGHT),
-            new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE)
-        }),
-        new DecisionNode(SCALE_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SCALE_NO_DATA_MESSAGE)
-    })),
-    CROSS_LINE(new DecisionNode(AutonomousRoutine.GO_STRAIGHT)),
+        new DecisionNode(SWITCH_NO_DATA, AutonomousRoutine.GO_STRAIGHT).setMessage(SWITCH_NO_DATA_MESSAGE))),
+    CROSS_LINE(new DecisionNode(AutonomousRoutine.GO_STRAIGHT), true),
     STUPID(new DecisionNode(AutonomousRoutine.DRIVE_TIMED));
 
 
     private final String name;
     private final DecisionNode root;
+    private final boolean isDefault;
 
     AutoMode(String name, DecisionNode root) {
+      this(name, root, false);
+    }
+
+    AutoMode(String name, DecisionNode root, boolean isDefault) {
       this.name = name;
       this.root = root;
+      this.isDefault = isDefault;
     }
+
+    AutoMode(DecisionNode root, boolean isDefault) {
+      StringBuilder nameMaker = new StringBuilder();
+      for (String word : this.name().split("_")) {
+        nameMaker.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
+      }
+      name = nameMaker.toString().trim();
+      this.root = root;
+      this.isDefault = isDefault;
+    }
+
 
     AutoMode(DecisionNode root) {
       StringBuilder nameMaker = new StringBuilder();
@@ -310,34 +332,39 @@ public class Robot extends IterativeRobot {
       }
       name = nameMaker.toString().trim();
       this.root = root;
+      this.isDefault = false;
     }
 
   }
 
   private enum AutonomousRoutine {
-    GO_STRAIGHT(new SimpleProfileAuto("go_straight")),
-    LEFT_HOOK(new SingleCubeSwitchAuto("left_hook")),
-    LEFT_SCALE(new ProfileScaleAuto("left_scale")),
-    LEFT_SCALE_NO_SWITCH(new ProfileDoubleScaleAuto("left_scale", "left_scale_back_to_switch", "left_switch_back_to_scale")),
-    LEFT_DOUBLE_SCALE_THEN_SWITCH(new ProfileDoubleScaleAuto("left_scale_straight", "left_scale_straight_back_to_switch", "left_switch_straight_back_to_scale")),
-    LEFT_SCALE_STRAIGHT(new ProfileDoubleScaleAuto("left_scale_straight", "left_scale_straight_back_to_switch", "left_switch_straight_back_to_scale")),
-    MIDDLE_TO_LEFT_SWITCH(new SingleCubeSwitchAuto("middle_to_left_switch")),
-    MIDDLE_TO_RIGHT_SWITCH(new SingleCubeSwitchAuto("middle_to_right_switch")),
-    SWITCH_DOUBLE_CUBE_LEFT(new SwitchDoubleCube("left")),
-    SWITCH_DOUBLE_CUBE_RIGHT(new SwitchDoubleCube("right")),
-    RIGHT_HOOK(new SingleCubeSwitchAuto("right_hook")),
-    RIGHT_SCALE(new ProfileScaleAuto("right_scale")),
-    DRIVE_TIMED(new DriveTimed(ControlMode.PercentOutput, Tuning.stupidDriveTime, Tuning.stupidDrivePercent));
+    MIDDLE_LEFT_SWITCH_MULTI(() -> new ProfileMultiSwitchAuto("middle_to_left_switch", "left_switch_to_pickup", "pickup_to_left_switch")),
+    MIDDLE_RIGHT_SWITCH_MULTI(() -> new ProfileMultiSwitchAuto("middle_to_right_switch", "right_switch_to_pickup", "pickup_to_right_switch")),
+    MIDDLE_LEFT_SWITCH_SCALE(() -> new ProfileSwitchScaleAuto("middle_to_left_switch", "left_switch_to_pickup", "pickup_to_left_scale")),
+    MIDDLE_RIGHT_SWITCH_SCALE(() -> new ProfileSwitchScaleAuto("middle_to_right_switch", "right_switch_to_pickup", "pickup_to_right_scale")),
+    GO_STRAIGHT(() -> new SimpleProfileAuto("go_straight")),
+    LEFT_HOOK(() -> new SingleCubeSwitchAuto("left_hook")),
+    LEFT_SCALE(() -> new ProfileScaleAuto("left_scale")),
+    // LEFT_SCALE_NO_SWITCH(new ProfileDoubleScaleAuto("left_scale", "left_scale_back_to_switch", "left_switch_back_to_scale")),
+    // LEFT_DOUBLE_SCALE_THEN_SWITCH(new ProfileDoubleScaleAuto("left_scale_straight", "left_scale_straight_back_to_switch", "left_switch_straight_back_to_scale")),
+    // LEFT_SCALE_STRAIGHT(new ProfileScaleAuto("left_scale_straight")),
+    MIDDLE_LEFT_SWITCH_1CUBE(() -> new SingleCubeSwitchAuto("middle_to_left_switch")),
+    MIDDLE_RIGHT_SWITCH_1CUBE(() -> new SingleCubeSwitchAuto("middle_to_right_switch")),
+    SWITCH_DOUBLE_CUBE_LEFT(() -> new SwitchDoubleCube("left")),
+    SWITCH_DOUBLE_CUBE_RIGHT(() -> new SwitchDoubleCube("right")),
+    RIGHT_HOOK(() -> new SingleCubeSwitchAuto("right_hook")),
+    // RIGHT_SCALE(new ProfileScaleAuto("right_scale")),
+    DRIVE_TIMED(() -> new DriveTimed(ControlMode.PercentOutput, Tuning.stupidDriveTime, Tuning.stupidDrivePercent));
 
-    private final Command autoCommand;
+    private final Supplier<Command> autoCommand;
     private final String defaultMessage;
 
-    AutonomousRoutine(Command autoCommand) {
+    AutonomousRoutine(Supplier<Command> autoCommand) {
       this.autoCommand = autoCommand;
       this.defaultMessage = "Running routine " + this.name();
     }
 
-    AutonomousRoutine(Command autoCommand, String defaultMessage) {
+    AutonomousRoutine(Supplier<Command> autoCommand, String defaultMessage) {
       this.autoCommand = autoCommand;
       this.defaultMessage = defaultMessage;
     }
@@ -374,13 +401,13 @@ public class Robot extends IterativeRobot {
       this.profile = profile;
     }
 
-    public DecisionNode(@NotNull BooleanSupplier condition, @NotNull DecisionNode[] children) {
+    public DecisionNode(@NotNull BooleanSupplier condition, @NotNull DecisionNode... children) {
       this.condition = condition;
       this.children = children;
       this.profile = null;
     }
 
-    public DecisionNode(@NotNull DecisionNode[] children) {
+    public DecisionNode(@NotNull DecisionNode... children) {
       this.condition = () -> (true);
       this.children = children;
       this.profile = null;
@@ -407,7 +434,6 @@ public class Robot extends IterativeRobot {
     public Optional<DecisionNode[]> getChildren() {
       return Optional.ofNullable(children);
     }
-
   }
 
   private static class Message {
