@@ -127,9 +127,7 @@ public class DriveTrain extends Subsystem {
     driveRightMotorB.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
     driveRightMotorC.set(ControlMode.Follower, driveRightMotorA.getDeviceID());
 
-    for (ChickenTalon talon : driveMotorAll) {
-      talon.setBrake(true);
-    }
+    setBrake(true);
 
     configTalonsForVelocity();
 
@@ -139,6 +137,12 @@ public class DriveTrain extends Subsystem {
       talon.configPeakOutputForward(1);
       talon.configPeakOutputReverse(-1);
       talon.enableCurrentLimit(false);
+    }
+  }
+
+  public void setBrake(Boolean state) {
+    for (ChickenTalon talon : driveMotorAll) {
+      talon.setBrake(state);
     }
   }
 
