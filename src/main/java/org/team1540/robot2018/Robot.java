@@ -2,6 +2,8 @@ package org.team1540.robot2018;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -105,13 +107,13 @@ public class Robot extends IterativeRobot {
     SmartDashboard.putData(zeroNavX);
 
 
-    // UsbCamera overheadCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.OVERHEAD_CAM_ID);
-    // overheadCam.setResolution(128, 73);
-    // overheadCam.setFPS(30);
-    //
-    // UsbCamera turretCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.TURRET_CAM_ID);
-    // turretCam.setResolution(128, 73);
-    // overheadCam.setFPS(30);
+    UsbCamera overheadCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.OVERHEAD_CAM_ID);
+    overheadCam.setResolution(128, 73);
+    overheadCam.setFPS(30);
+
+    UsbCamera turretCam = CameraServer.getInstance().startAutomaticCapture(RobotMap.TURRET_CAM_ID);
+    turretCam.setResolution(128, 73);
+    overheadCam.setFPS(30);
 
 
     Command refreshProfiles = new SimpleCommand("[MotionP] Refresh Motion Profiles",
