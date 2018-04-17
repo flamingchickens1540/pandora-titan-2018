@@ -26,7 +26,7 @@ public class RobotRecording extends IterativeRobot {
   @Override
   public void teleopInit() {
     new SimpleLoopCommand("Anit-PID", () -> {}, drivetrain);
-    drivetrain.disableBrake();
+    drivetrain.setBrake(false);
     drivetrainRecording = new RecordProfile(drivetrain.driveLeftMotorA,
         drivetrain.driveRightMotorA);
     drivetrainRecording.start();
