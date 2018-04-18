@@ -404,6 +404,7 @@ public class Robot extends IterativeRobot {
       this.condition = () -> (true);
       this.children = null;
       this.profile = profile;
+      message = new Message(profile.defaultMessage);
     }
 
     public DecisionNode(@NotNull BooleanSupplier condition, @NotNull DecisionNode... children) {
