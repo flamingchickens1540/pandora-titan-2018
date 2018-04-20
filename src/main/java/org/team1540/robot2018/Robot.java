@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -24,11 +25,11 @@ import org.team1540.base.power.PowerManager;
 import org.team1540.base.util.SimpleCommand;
 import org.team1540.robot2018.commands.TankDrive;
 import org.team1540.robot2018.commands.auto.DriveTimed;
-import org.team1540.robot2018.commands.auto.sequences.SwitchDoubleCube;
 import org.team1540.robot2018.commands.auto.sequences.ProfileDoubleScaleAuto;
 import org.team1540.robot2018.commands.auto.sequences.ProfileScaleAuto;
 import org.team1540.robot2018.commands.auto.sequences.SimpleProfileAuto;
 import org.team1540.robot2018.commands.auto.sequences.SingleCubeSwitchAuto;
+import org.team1540.robot2018.commands.auto.sequences.SwitchDoubleCube;
 import org.team1540.robot2018.subsystems.Arms;
 import org.team1540.robot2018.subsystems.ClimberTape;
 import org.team1540.robot2018.subsystems.ClimberWinch;
@@ -54,6 +55,8 @@ public class Robot extends IterativeRobot {
   private SendableChooser<Boolean> driveMode;
 
   private Command autoCommand;
+
+  PowerDistributionPanel pdp = new PowerDistributionPanel();
 
   @Override
   public void robotInit() {
@@ -108,6 +111,16 @@ public class Robot extends IterativeRobot {
     UsbCamera turretCam = CameraServer.getInstance().startAutomaticCapture(Tuning.turretCamID);
     turretCam.setResolution(128, 73);
     overheadCam.setFPS(30);
+
+    // Motor Burnout Warning
+    new Thread(() -> {
+      int rightBurnout = isBurnedOut(5, 25, new ArrayList<>(Arrays.asList(1, 2)));
+      System.out.println(rightBurnout + " other " + pdp.getCurrent(2));
+      // int leftBurnout = isBurnedOut(5, 25, new Integer[]{13, 14, 15});
+      // if (rightBurnout + leftBurnout != -2) {
+      //   System.out.println("Motor "+leftBurnout+" or "+rightBurnout+" is burned out");
+      // }
+    }).start();
 
 
     Command refreshProfiles = new SimpleCommand("[MotionP] Refresh Motion Profiles",
