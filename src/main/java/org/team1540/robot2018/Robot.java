@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
@@ -119,6 +122,18 @@ public class Robot extends IterativeRobot {
 
     SmartDashboard.putData(drivetrain);
     SmartDashboard.putData(PowerManager.getInstance());
+  }
+
+  private int isBurnedOut(double burnoutLimit, double otherLimit, List<Integer> pdpIndicies) {
+    for (Integer pdpIndicy : pdpIndicies) {
+      double averageOtherCurrent =
+          pdp.getCurrent(pdpIndicies.get(0)) + pdp.getCurrent(pdpIndicies.get(1)) / 2;
+      if (averageOtherCurrent > otherLimit && pdp.getCurrent(pdpIndicies.get(3)) < burnoutLimit) {
+        return pdpIndicies.get(3);
+      }
+      pdpIndicies.add(pdpIndicies.remove(pdpIndicies.size() - 1));
+    }
+    return -1;
   }
 
   @Override
