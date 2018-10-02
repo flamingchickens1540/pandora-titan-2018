@@ -14,11 +14,13 @@ import org.team1540.base.triggers.StrictDPadButton;
 import org.team1540.base.util.SimpleCommand;
 import org.team1540.robot2018.commands.arms.DropCube;
 import org.team1540.robot2018.commands.arms.JoystickArms;
+import org.team1540.robot2018.commands.arms.OpenArms;
 import org.team1540.robot2018.commands.elevator.JoystickElevator;
 import org.team1540.robot2018.commands.elevator.MoveElevatorSafe;
 import org.team1540.robot2018.commands.groups.FrontScale;
 import org.team1540.robot2018.commands.groups.GroundPosition;
 import org.team1540.robot2018.commands.groups.IntakeSequence;
+import org.team1540.robot2018.commands.intake.AutoIntake;
 import org.team1540.robot2018.commands.intake.JoystickEject;
 import org.team1540.robot2018.commands.wrist.CalibrateWristMP;
 import org.team1540.robot2018.commands.wrist.JoystickWrist;
@@ -94,20 +96,20 @@ public class OI {
   static Button enableElevatorAxisControlButton = new SimpleButton(() ->
       Utilities.processDeadzone(copilot.getRawAxis(LEFT_Y), Tuning.axisWristLiftDeadzone) != 0);
 
-  public static Button intakeSequenceButton = new JoystickButton(copilot, LB);
+  public static Button intakeSequenceButton = new JoystickButton(copilot, A);
   static Button ejectButton = new JoystickButton(copilot, RB);
 
-  static Button elevatorExchangeButton = new JoystickButton(copilot, Y);
+  // static Button elevatorExchangeButton = new JoystickButton(copilot, Y);
+  //
+  // static Button elevatorFrontScaleButton = new StrictDPadButton(copilot, 0, DPadAxis.UP);
+  // static Button elevatorLowerButton = new StrictDPadButton(copilot, 0, DPadAxis.DOWN);
+  // static Button elevatorSwitchButton = new StrictDPadButton(copilot, 0, DPadAxis.RIGHT);
+  //
+  // static Button wristBackButton = new JoystickButton(copilot, B);
+  // static Button wristFwdButton = new JoystickButton(copilot, A);
+  // static Button wristTransitButton = new JoystickButton(copilot, X);
 
-  static Button elevatorFrontScaleButton = new StrictDPadButton(copilot, 0, DPadAxis.UP);
-  static Button elevatorLowerButton = new StrictDPadButton(copilot, 0, DPadAxis.DOWN);
-  static Button elevatorSwitchButton = new StrictDPadButton(copilot, 0, DPadAxis.RIGHT);
-
-  static Button wristBackButton = new JoystickButton(copilot, B);
-  static Button wristFwdButton = new JoystickButton(copilot, A);
-  static Button wristTransitButton = new JoystickButton(copilot, X);
-
-  static Button dropButton = new JoystickButton(copilot, BACK);
+  static Button dropButton = new JoystickButton(copilot, LB);
 
   // WRIST
   public static double getWristAxis() {
@@ -115,11 +117,11 @@ public class OI {
   }
 
   public static double getArmLeftAxis() {
-    return scale(Utilities.processDeadzone(copilot.getRawAxis(LEFT_X), Tuning.axisDeadzone), 2);
+    return -scale(Utilities.processDeadzone(copilot.getRawAxis(LEFT_TRIG), Tuning.axisDeadzone), 2);
   }
 
   public static double getArmRightAxis() {
-    return scale(Utilities.processDeadzone(copilot.getRawAxis(RIGHT_X), Tuning.axisDeadzone), 2);
+    return -scale(Utilities.processDeadzone(copilot.getRawAxis(RIGHT_TRIG), Tuning.axisDeadzone), 2);
   }
 
   // zero values mean it's within the deadzone
@@ -128,7 +130,7 @@ public class OI {
 
   // INTAKE
 
-  static Button stopIntakeButton = new JoystickButton(copilot, START);
+  static Button stopIntakeButton = new JoystickButton(copilot, B);
 
   // DRIVETRAIN
   public static double getTankdriveLeftAxis() {
@@ -150,7 +152,7 @@ public class OI {
 
   static {
     // INTAKE
-    OI.intakeSequenceButton.whenPressed(new IntakeSequence());
+    OI.intakeSequenceButton.whenPressed(new AutoIntake());
 
     OI.ejectButton.whenPressed(new JoystickEject());
 
@@ -161,26 +163,26 @@ public class OI {
         arms));
 
     // ARMS
-    OI.intakeSequenceButton.whileHeld(new JoystickArms());
+    OI.intakeSequenceButton.whileHeld(new OpenArms());
 
     // ELEVATOR
     OI.enableElevatorAxisControlButton.whileHeld(new JoystickElevator());
 
-    OI.elevatorExchangeButton.whenPressed(new MoveElevatorSafe(true, Tuning
-        .elevatorExchangePosition));
-    OI.elevatorSwitchButton.whenPressed(new MoveElevatorSafe(true, Tuning
-        .elevatorFrontSwitchPosition));
+    // OI.elevatorExchangeButton.whenPressed(new MoveElevatorSafe(true, Tuning
+    //     .elevatorExchangePosition));
+    // OI.elevatorSwitchButton.whenPressed(new MoveElevatorSafe(true, Tuning
+    //     .elevatorFrontSwitchPosition));
 
     // WRIST
     OI.enableWristAxisControlButton.whileHeld(new JoystickWrist());
 
-    OI.wristFwdButton.whenPressed(new CalibrateWristMP(OUT));
-    OI.wristTransitButton.whenPressed(new MoveWrist(Tuning.wristTransitPosition));
-    OI.wristBackButton.whenPressed(new MoveWrist(Tuning.wristBackPosition));
+    // OI.wristFwdButton.whenPressed(new CalibrateWristMP(OUT));
+    // OI.wristTransitButton.whenPressed(new MoveWrist(Tuning.wristTransitPosition));
+    // OI.wristBackButton.whenPressed(new MoveWrist(Tuning.wristBackPosition));
 
     // ELEVATOR AND WRIST
-    OI.elevatorLowerButton.whenPressed(new GroundPosition());
-    OI.elevatorFrontScaleButton.whenPressed(new FrontScale());
+    // OI.elevatorLowerButton.whenPressed(new GroundPosition());
+    // OI.elevatorFrontScaleButton.whenPressed(new FrontScale());
 
   }
 }

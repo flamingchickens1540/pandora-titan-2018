@@ -11,7 +11,7 @@ public class OpenArms extends Command {
 
   @Override
   protected void execute() {
-    Robot.arms.set(-Tuning.armJoystickConstant, Tuning.armJoystickConstant);
+    Robot.arms.set(Tuning.armJoystickConstant, Tuning.armJoystickConstant);
   }
 
   @Override

@@ -13,8 +13,13 @@ public class JoystickArms extends Command {
 
   @Override
   protected void execute() {
-    Robot.arms.set(-OI.getArmLeftAxis() * Tuning.armJoystickConstant,
-        OI.getArmRightAxis() * Tuning.armJoystickConstant);
+    if (OI.getArmLeftAxis() < 0.1 && OI.getArmRightAxis() < 0.1) {
+      Robot.arms.set(Tuning.armHoldSpeed);
+    }
+    else {
+      Robot.arms.set(OI.getArmLeftAxis() * Tuning.armJoystickConstant,
+          OI.getArmRightAxis() * Tuning.armJoystickConstant);
+    }
   }
 
   @Override

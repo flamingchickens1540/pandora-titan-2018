@@ -6,6 +6,7 @@ import org.team1540.base.util.SimpleCommand;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.robot2018.RobotMap;
 import org.team1540.robot2018.Tuning;
+import org.team1540.robot2018.commands.arms.JoystickArms;
 
 public class Arms extends Subsystem {
 
@@ -34,10 +35,7 @@ public class Arms extends Subsystem {
 
   @Override
   protected void initDefaultCommand() {
-    setDefaultCommand(new SimpleCommand("Arm Hold", () -> {
-      armMotorLeft.set(Tuning.armHoldSpeed);
-      armMotorRight.set(Tuning.armHoldSpeed);
-    }, this));
+    setDefaultCommand(new JoystickArms());
   }
 
 }
