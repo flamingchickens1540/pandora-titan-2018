@@ -380,6 +380,7 @@ public class Robot extends IterativeRobot {
     SmartDashboard.putNumber("Right Distance", rightDistance);
 
     SmartDashboard.putNumber("Gyro Angle", Robot.navx.getAngle());
+
     SmartDashboard.putData(Scheduler.getInstance());
     Scheduler.getInstance().run();
   }

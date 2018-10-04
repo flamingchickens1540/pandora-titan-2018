@@ -156,7 +156,7 @@ public class OI {
 
     OI.ejectButton.whenPressed(new JoystickEject());
 
-    OI.dropButton.whenPressed(new DropCube(Tuning.armDropTime));
+    OI.dropButton.whileHeld(new OpenArms());
 
 
     OI.stopIntakeButton.whenPressed(new SimpleCommand("Stop intake", intake::holdCube, intake,
