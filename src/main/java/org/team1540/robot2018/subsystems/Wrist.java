@@ -3,6 +3,7 @@ package org.team1540.robot2018.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.robot2018.RobotMap;
 import org.team1540.robot2018.Tuning;
@@ -77,5 +78,6 @@ public class Wrist extends Subsystem {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("[Wrist] getCurrent", getCurrent());
   }
 }
