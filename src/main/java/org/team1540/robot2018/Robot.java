@@ -58,20 +58,20 @@ public class Robot extends IterativeRobot {
 
     AdjustableManager.getInstance().add(new Tuning());
     autoPosition = new SendableChooser<>();
-    autoPosition.addDefault("Middle", "Middle");
-    autoPosition.addObject("Left Scale Then Switch", "Left Scale Then Switch");
-    autoPosition.addObject("Left Double Scale Then Switch", "Left Double Scale Then Switch");
-    autoPosition.addObject("Left Scale No Switch", "Left Scale No Switch");
-    autoPosition.addObject("Left Scale Hook No Switch", "Left Scale Hook No Switch");
-    autoPosition.addObject("Left Hook Switch Then Scale", "Left Hook Switch Then Scale");
-    autoPosition.addObject("Left Hook Switch Then Double Scale", "Left Hook Switch Then Double Scale");
-    autoPosition.addObject("Right Scale Then Switch", "Right Scale Then Switch");
-    // autoPosition.addObject("Right Scale No Switch", "Right Scale No Switch");
-    autoPosition.addObject("Left Hook Switch No Scale", "Left Hook Switch No Scale");
-    autoPosition.addObject("Center Double Cube", "Center Double Cube");
-    autoPosition.addObject("Right Hook", "Right Hook Switch");
+    autoPosition.addDefault("Middle Switch 1 Cube", "Middle");
+    // autoPosition.addObject("Left Scale Then Switch", "Left Scale Then Switch");
+    // autoPosition.addObject("Left Double Scale Then Switch", "Left Double Scale Then Switch");
+    // autoPosition.addObject("Left Scale No Switch", "Left Scale No Switch");
+    // autoPosition.addObject("Left Scale Hook No Switch", "Left Scale Hook No Switch");
+    // autoPosition.addObject("Left Hook Switch Then Scale", "Left Hook Switch Then Scale");
+    // autoPosition.addObject("Left Hook Switch Then Double Scale", "Left Hook Switch Then Double Scale");
+    // autoPosition.addObject("Right Scale Then Switch", "Right Scale Then Switch");
+    // // autoPosition.addObject("Right Scale No Switch", "Right Scale No Switch");
+    // autoPosition.addObject("Left Hook Switch No Scale", "Left Hook Switch No Scale");
+    // autoPosition.addObject("Center Double Cube", "Center Double Cube");
+    // autoPosition.addObject("Right Hook", "Right Hook Switch");
     autoPosition.addObject("Cross Line", "Cross Line");
-    autoPosition.addObject("Stupid", "Stupid");
+    autoPosition.addObject("Stupid (cross line if broken encoders)", "Stupid");
     autoPosition.addObject("Do Nothing", "Do Nothing");
 
     SmartDashboard.putData("Auto mode", autoPosition);
