@@ -4,12 +4,12 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import org.team1540.base.drive.PidDriveFactory;
-import org.team1540.base.drive.PowerJoystickScaling;
-import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.robot2018.OI;
 import org.team1540.robot2018.RobotMap;
 import org.team1540.robot2018.Tuning;
+import org.team1540.rooster.drive.PidDriveFactory;
+import org.team1540.rooster.drive.PowerJoystickScaling;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 public class DriveTrain extends Subsystem {
 

@@ -7,10 +7,10 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.team1540.base.util.SimpleCommand;
-import org.team1540.base.wrappers.ChickenTalon;
 import org.team1540.robot2018.RobotMap;
 import org.team1540.robot2018.Tuning;
+import org.team1540.rooster.util.SimpleCommand;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 /**
  * Robot for testing the wheelbase width

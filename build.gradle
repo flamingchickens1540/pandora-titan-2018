@@ -26,7 +26,7 @@ dependencies {
     compile navx()
     compile pathfinder()
     compile openrio.powerup.matchData()
-    compile "org.team1540:rooster:0.9.1"
+    compile "org.team1540:rooster:0.14.0"
 }
 
 def TEAM = 1540

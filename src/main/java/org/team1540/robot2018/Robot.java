@@ -16,22 +16,22 @@ import java.io.File;
 import openrio.powerup.MatchData;
 import openrio.powerup.MatchData.GameFeature;
 import openrio.powerup.MatchData.OwnedSide;
-import org.team1540.base.adjustables.AdjustableManager;
-import org.team1540.base.power.PowerManager;
-import org.team1540.base.util.SimpleCommand;
-import org.team1540.robot2018.commands.drivetrain.TankDrive;
 import org.team1540.robot2018.commands.auto.DriveTimed;
-import org.team1540.robot2018.commands.auto.sequences.SwitchDoubleCube;
 import org.team1540.robot2018.commands.auto.sequences.ProfileDoubleScaleAuto;
 import org.team1540.robot2018.commands.auto.sequences.ProfileScaleAuto;
 import org.team1540.robot2018.commands.auto.sequences.SimpleProfileAuto;
 import org.team1540.robot2018.commands.auto.sequences.SingleCubeSwitchAuto;
+import org.team1540.robot2018.commands.auto.sequences.SwitchDoubleCube;
+import org.team1540.robot2018.commands.drivetrain.TankDrive;
 import org.team1540.robot2018.motion.CSVProfileManager;
 import org.team1540.robot2018.subsystems.Arms;
 import org.team1540.robot2018.subsystems.DriveTrain;
 import org.team1540.robot2018.subsystems.Elevator;
 import org.team1540.robot2018.subsystems.Intake;
 import org.team1540.robot2018.subsystems.Wrist;
+import org.team1540.rooster.adjustables.AdjustableManager;
+import org.team1540.rooster.power.PowerManager;
+import org.team1540.rooster.util.SimpleCommand;
 
 public class Robot extends IterativeRobot {
   public static final DriveTrain drivetrain = new DriveTrain();

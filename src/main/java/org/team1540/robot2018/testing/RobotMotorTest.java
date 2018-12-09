@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.team1540.base.Utilities;
-import org.team1540.base.adjustables.AdjustableManager;
-import org.team1540.base.adjustables.Tunable;
-import org.team1540.base.wrappers.ChickenController;
-import org.team1540.base.wrappers.ChickenTalon;
-import org.team1540.base.wrappers.ChickenVictor;
+import org.team1540.rooster.Utilities;
+import org.team1540.rooster.adjustables.AdjustableManager;
+import org.team1540.rooster.adjustables.Tunable;
+import org.team1540.rooster.wrappers.ChickenController;
+import org.team1540.rooster.wrappers.ChickenTalon;
+import org.team1540.rooster.wrappers.ChickenVictor;
 
 public class RobotMotorTest extends IterativeRobot {
 

@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.team1540.base.adjustables.AdjustableManager;
-import org.team1540.base.adjustables.Tunable;
-import org.team1540.base.drive.PidDrive;
-import org.team1540.base.drive.PidDriveFactory;
-import org.team1540.base.wrappers.ChickenTalon;
+import org.team1540.rooster.adjustables.AdjustableManager;
+import org.team1540.rooster.adjustables.Tunable;
+import org.team1540.rooster.drive.PidDrive;
+import org.team1540.rooster.drive.PidDriveFactory;
+import org.team1540.rooster.wrappers.ChickenTalon;
 
 public class DriveTestRobot extends IterativeRobot {
 
