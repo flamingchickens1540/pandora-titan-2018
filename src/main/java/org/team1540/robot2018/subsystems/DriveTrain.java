@@ -7,8 +7,11 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.team1540.robot2018.OI;
 import org.team1540.robot2018.RobotMap;
 import org.team1540.robot2018.Tuning;
-import org.team1540.rooster.drive.PidDriveFactory;
-import org.team1540.rooster.drive.PowerJoystickScaling;
+import org.team1540.rooster.Utilities;
+import org.team1540.rooster.drive.pipeline.AdvancedArcadeJoystickInput;
+import org.team1540.rooster.drive.pipeline.CTREOutput;
+import org.team1540.rooster.drive.pipeline.FeedForwardProcessor;
+import org.team1540.rooster.util.SimpleLoopCommand;
 import org.team1540.rooster.wrappers.ChickenTalon;
 
 public class DriveTrain extends Subsystem {
@@ -30,27 +33,17 @@ public class DriveTrain extends Subsystem {
 
   @Override
   public void initDefaultCommand() {
-    setDefaultCommand(new PidDriveFactory()
-        .setSubsystem(this)
-        .setLeft(driveLeftMotorA)
-        .setRight(driveRightMotorA)
-        .setJoystick(OI.driver)
-        .setLeftAxis(1)
-        .setRightAxis(5)
-        .setForwardTrigger(3)
-        .setBackTrigger(2)
-        .setDeadzone(Tuning.axisDeadzone)
-        .setScaling(new PowerJoystickScaling(Tuning.drivetrainJoystickPower))
-        .setInvertLeft(true)
-        .setInvertRight(true)
-        .setInvertLeftBrakeDirection(false)
-        .setInvertRightBrakeDirection(false)
-        .setBrakeOverrideThresh(Tuning.drivetrainBrakeOverrideThreshold)
-        .setBrakingStopZone(Tuning.axisDeadzone)
-        .setMaxBrakePct(Tuning.drivetrainBrakingPercent)
-        .setMaxVel(Tuning.drivetrainMaxVelocity)
-        .createPidDrive()
-    );
+    setDefaultCommand(new SimpleLoopCommand("Drive", new AdvancedArcadeJoystickInput(
+        Tuning.drivetrainMaxVelocity,
+        1,
+        true,
+        () -> Utilities.scale(Utilities.processDeadzone(-OI.driver.getRawAxis(OI.LEFT_Y), Tuning.axisDeadzone), Tuning.drivetrainJoystickPower),
+        () -> Utilities.scale(Utilities.processDeadzone(OI.driver.getRawAxis(OI.RIGHT_X), Tuning.axisDeadzone), Tuning.drivetrainJoystickPower),
+        () ->
+            Utilities.scale(Utilities.processDeadzone(OI.driver.getRawAxis(OI.LEFT_TRIG), Tuning.axisDeadzone), Tuning.drivetrainJoystickPower)
+                - Utilities.scale(Utilities.processDeadzone(OI.driver.getRawAxis(OI.RIGHT_TRIG), Tuning.axisDeadzone), Tuning.drivetrainJoystickPower))
+        .then(new FeedForwardProcessor(1 / Tuning.drivetrainMaxVelocity, 0, 0))
+        .then(new CTREOutput(driveLeftMotorA, driveRightMotorA, false)), this));
   }
 
   public void setLeft(ControlMode mode, double value) {
